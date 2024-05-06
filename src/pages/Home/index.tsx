@@ -3,17 +3,29 @@ import { CountdownContainer, FormContainer, HomeContainer, MinutesAmouthImputs, 
 import { useForm, } from 'react-hook-form';
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as zod from 'zod';
+import { useState } from "react";
 
 const newCyclerFormValidationSchema = zod.object({
     task: zod.string().min(1,'informe a tarefa'),
-    minutesAmount: zod.number().min(1, 'O clico precisa ter no mínimo 1 minuto').max(120, 'O ciclo precisa ter no máximo 2 horas'),
+    minutesAmount: zod.number().min(1, 'O clico precisa ter no mínimo 1 minuto').max(60, 'O ciclo pode ter no máximo 1 hora'),
 })
 
 
 type NewCycleFormData = zod.infer<typeof newCyclerFormValidationSchema>
 
 
+interface Cycle {
+    id: string;
+    task: string;
+    minutesAmount: number;
+    
+}
+
 export function Home(){
+
+    const [cycles, setCycles] =  useState<Cycle[]>([]);
+    const [activeCycleId, setActiveCycleId] = useState<String | null>(null);
+    const [amountSecondsPassed, setAmountSecondsPassed] = useState(0);
     
     const {register, handleSubmit, watch, reset} = useForm<NewCycleFormData>({
         resolver: zodResolver(newCyclerFormValidationSchema),
@@ -23,8 +35,23 @@ export function Home(){
         }
     });
 
+    const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId);
+
+    const totalSeconds =  activeCycle ? activeCycle.minutesAmount *  60 : 0;
+    const currentSeconds = activeCycle ? totalSeconds ? totalSeconds - amountSecondsPassed : 0;
+
+    const minutesAmount = currentSeconds
+
     function handleCreateNewCycle(data : NewCycleFormData){
-        console.log(data);
+        const newCycle: Cycle = {
+            id: String(new Date().getTime()),
+            task: data.task,
+            minutesAmount: data.minutesAmount
+        }
+        
+        setCycles((state) => [...cycles, newCycle]);
+        setActiveCycleId(newCycle.id);
+
         reset();
     }
 
@@ -58,7 +85,7 @@ export function Home(){
                     placeholder="00"
                     step={5}
                     min={1}
-                    max={120}
+                    max={60}
                     {...register('minutesAmount', {valueAsNumber:true})}
                     />
 

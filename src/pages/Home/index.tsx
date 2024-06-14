@@ -23,10 +23,11 @@ interface Cycle {
 
 export function Home(){
 
-    const [cycles, setCycles] =  useState<Cycle[]>([]);
-    const [activeCycleId, setActiveCycleId] = useState<String | null>(null);
-    const [amountSecondsPassed, setAmountSecondsPassed] = useState(0);
+    const [ cycles, setCycles ] = useState<Cycle[]>([]);
+    const[ activeCycleId, setActiveCycleId ] = useState<String | null>(null); // quando inicializa a aplicação o id do ciclo é nulo, depois vira string por isso string ou nulo
     
+
+
     const {register, handleSubmit, watch, reset} = useForm<NewCycleFormData>({
         resolver: zodResolver(newCyclerFormValidationSchema),
         defaultValues: {
@@ -35,26 +36,23 @@ export function Home(){
         }
     });
 
-    const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId);
-
-    const totalSeconds =  activeCycle ? activeCycle.minutesAmount *  60 : 0;
-    const currentSeconds = activeCycle ? totalSeconds ? totalSeconds - amountSecondsPassed : 0;
-
-    const minutesAmount = currentSeconds
 
     function handleCreateNewCycle(data : NewCycleFormData){
         const newCycle: Cycle = {
-            id: String(new Date().getTime()),
+            id: String(new Date().getTime()), //essa função o date pega a data atual e o gettime pega a data atual e converte para milisegundos
             task: data.task,
             minutesAmount: data.minutesAmount
         }
-        
-        setCycles((state) => [...cycles, newCycle]);
+
+        setCycles((state) => [...state, newCycle]); //clousures: sempre bom qnd vc precisar auterar um estado e ele depende da versão anterior, é melhor o estado ser citado em estado de função
         setActiveCycleId(newCycle.id);
 
         reset();
     }
 
+    //para mostrar na tela qual é o ciclo ativo
+    const activeCycle = cycles.find((cycle) => cycle.id === activeCycle) 
+    
     const task = watch('task');
     const isSubmitDisable = !task;
 
@@ -94,11 +92,11 @@ export function Home(){
                 </FormContainer>
 
                 <CountdownContainer>
-                    <span>0</span>
-                    <span>0</span>
+                    <span>{0}</span>
+                    <span>{0}</span>
                     <Separator>:</Separator>
-                    <span>0</span>
-                    <span>0</span>
+                    <span>{0}</span>
+                    <span>{0}</span>
                 </CountdownContainer>
                 
                 <StartCountDownButton

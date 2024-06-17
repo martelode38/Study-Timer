@@ -25,7 +25,7 @@ export function Home(){
 
     const [ cycles, setCycles ] = useState<Cycle[]>([]);
     const[ activeCycleId, setActiveCycleId ] = useState<String | null>(null); // quando inicializa a aplicação o id do ciclo é nulo, depois vira string por isso string ou nulo
-    
+    const [ amountSecondsPassed, setAmountSecondsPassed ] = useState(0);
 
 
     const {register, handleSubmit, watch, reset} = useForm<NewCycleFormData>({
@@ -51,8 +51,19 @@ export function Home(){
     }
 
     //para mostrar na tela qual é o ciclo ativo
-    const activeCycle = cycles.find((cycle) => cycle.id === activeCycle) 
-    
+    const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId); 
+
+    const totalSeconds = activeCycle ? activeCycle.minutesAmount * 60 : 0; //variavel que vai converter o numero em minutos inserido pelo user em segundos
+
+    const currentSeconds = activeCycle ? totalSeconds - amountSecondsPassed : 0;
+
+    const minutesAmount = Math.floor(currentSeconds / 60); //essa fução vai sempre arredondar os minutos para baixo
+    const secondsAmount = currentSeconds % 60;
+
+    const minutes = String(minutesAmount).padStart(2,'0'); //essa função ela define um tamanho minimo para uma string e preenche o espaço q falta com u caractere que vc escolher no começo
+    const seconds = String(secondsAmount).padStart(2,'0');
+
+
     const task = watch('task');
     const isSubmitDisable = !task;
 
@@ -81,7 +92,7 @@ export function Home(){
                     type="number"
                     id="minutesAmount"
                     placeholder="00"
-                    step={5}
+                    step={1}
                     min={1}
                     max={60}
                     {...register('minutesAmount', {valueAsNumber:true})}
@@ -92,11 +103,11 @@ export function Home(){
                 </FormContainer>
 
                 <CountdownContainer>
-                    <span>{0}</span>
-                    <span>{0}</span>
+                    <span>{minutes[0]}</span>
+                    <span>{minutes[1]}</span>
                     <Separator>:</Separator>
-                    <span>{0}</span>
-                    <span>{0}</span>
+                    <span>{seconds[0]}</span>
+                    <span>{seconds[1]}</span>
                 </CountdownContainer>
                 
                 <StartCountDownButton

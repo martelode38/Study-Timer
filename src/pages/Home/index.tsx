@@ -3,7 +3,9 @@ import { CountdownContainer, FormContainer, HomeContainer, MinutesAmouthImputs, 
 import { useForm, } from 'react-hook-form';
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as zod from 'zod';
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { differenceInSeconds } from "date-fns";
+
 
 const newCyclerFormValidationSchema = zod.object({
     task: zod.string().min(1,'informe a tarefa'),
@@ -18,7 +20,7 @@ interface Cycle {
     id: string;
     task: string;
     minutesAmount: number;
-    
+    startDate: Date;
 }
 
 export function Home(){
@@ -36,12 +38,27 @@ export function Home(){
         }
     });
 
+    //para mostrar na tela qual é o ciclo ativo
+    const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId); 
+
+    useEffect(() =>{
+        if (activeCycle){
+            setInterval(()=>{
+                setAmountSecondsPassed(
+                    differenceInSeconds(new Date(), activeCycle.startDate),
+                )
+            
+            },1000)
+        }
+    }, [activeCycle])
+
 
     function handleCreateNewCycle(data : NewCycleFormData){
         const newCycle: Cycle = {
             id: String(new Date().getTime()), //essa função o date pega a data atual e o gettime pega a data atual e converte para milisegundos
             task: data.task,
-            minutesAmount: data.minutesAmount
+            minutesAmount: data.minutesAmount,
+            startDate: new Date()
         }
 
         setCycles((state) => [...state, newCycle]); //clousures: sempre bom qnd vc precisar auterar um estado e ele depende da versão anterior, é melhor o estado ser citado em estado de função
@@ -50,8 +67,7 @@ export function Home(){
         reset();
     }
 
-    //para mostrar na tela qual é o ciclo ativo
-    const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId); 
+    
 
     const totalSeconds = activeCycle ? activeCycle.minutesAmount * 60 : 0; //variavel que vai converter o numero em minutos inserido pelo user em segundos
 

@@ -1,11 +1,11 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { CountdownContainer, Separator } from "./styles";
 import { differenceInSeconds } from "date-fns";
 import { CyclesContext } from "..";
 
 export function CountDown(){
-    const{activeCycle, activeCycleId, markCurrentCycleAsFinished} = useContext(CyclesContext);
-    const [ amountSecondsPassed, setAmountSecondsPassed ] = useState(0);
+    const{activeCycle, markCurrentCycleAsFinished, amountSecondsPassed, setSecondsPassed} = useContext(CyclesContext);
+
 
     const totalSeconds = activeCycle ? activeCycle.minutesAmount * 60 : 0; //variavel que vai converter o numero em minutos inserido pelo user em segundos
 
@@ -19,10 +19,10 @@ export function CountDown(){
 
                 if(secondsDifference >= totalSeconds){
                     markCurrentCycleAsFinished();
-                    setAmountSecondsPassed(totalSeconds);
+                    setSecondsPassed(totalSeconds);
                     clearInterval(interval)
                 }else{
-                    setAmountSecondsPassed(secondsDifference);
+                    setSecondsPassed(secondsDifference);
 
                 }
 
@@ -32,7 +32,7 @@ export function CountDown(){
         return()=>{
             clearInterval(interval)
         }
-    }, [activeCycle, totalSeconds, activeCycle, markCurrentCycleAsFinished])
+    }, [activeCycle, totalSeconds, activeCycle, markCurrentCycleAsFinished, setSecondsPassed])
 
     const currentSeconds = activeCycle ? totalSeconds - amountSecondsPassed : 0;
 
